@@ -19,9 +19,8 @@ document.addEventListener("DOMContentLoaded", async () => {
   // 1. Cargar Configuración e Información del Capturista
   configLocal = await window.apiElectron.obtenerConfiguracion();
   if (configLocal) {
-    const nombre = configLocal.usuarioActual || "Capturista Local";
-    const turno = configLocal.turnoActual || "Matutino";
-    lblUsuario.textContent = `${nombre} (${turno})`;
+    const nombre = configLocal.usuarioCorto || "Capturista";
+    lblUsuario.textContent = nombre;
 
     if (configLocal.UltimaRutaVigilada) {
       lblRuta.textContent = `Ruta: ${configLocal.UltimaRutaVigilada}`;

@@ -229,8 +229,9 @@ ipcMain.handle("intentar-login", async (evento, { usuario, pin }) => {
       
       // Pasar datos de sesión a memoria de la configuración
       config.usuarioActual = datosUser.nombre_completo || datosUser.nombre_usuario;
+      config.usuarioCorto = datosUser.nombre_usuario;
       config.turnoActual = datosUser.turno || "Matutino";
-      global.configuracionPC = config;
+      await guardarConfiguracion(config);
 
       // Iniciar el watcher de directorios si ya tiene ruta
       if (config.UltimaRutaVigilada) {
@@ -262,8 +263,9 @@ ipcMain.handle("intentar-login", async (evento, { usuario, pin }) => {
 
     global.usuarioSesion = userOffline;
     config.usuarioActual = userOffline.nombre_completo;
+    config.usuarioCorto = userOffline.nombre_usuario;
     config.turnoActual = userOffline.turno;
-    global.configuracionPC = config;
+    await guardarConfiguracion(config);
 
     if (config.UltimaRutaVigilada) {
       watcher.iniciarWatcher(config.UltimaRutaVigilada, "localhost", "3000");

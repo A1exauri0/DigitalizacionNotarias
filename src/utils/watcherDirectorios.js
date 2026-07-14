@@ -39,7 +39,7 @@ function iniciarWatcher(rutaMonitoreo, ip = "localhost", puerto = "3000") {
     persistent: true,
     depth: 9,
     ignoreInitial: true,
-    awaitWriteFinish: false
+    awaitWriteFinish: false,
   });
 
   watcherInstancia.on("add", (rutaCompleta) => {
@@ -64,7 +64,9 @@ function detenerWatcher() {
 
 // Encola un archivo PDF para procesamiento asíncrono ordenado
 function encolarArchivo(rutaCompleta) {
-  console.log(`Archivo encolado para validación: ${path.basename(rutaCompleta)}`);
+  console.log(
+    `Archivo encolado para validación: ${path.basename(rutaCompleta)}`,
+  );
   colaProcesamiento.push(rutaCompleta);
   procesarSiguienteEnCola();
 }
@@ -79,7 +81,10 @@ async function procesarSiguienteEnCola() {
   try {
     await procesarArchivoPdf(rutaCompleta);
   } catch (error) {
-    console.error(`Error al procesar archivo en la cola (${rutaCompleta}):`, error.message);
+    console.error(
+      `Error al procesar archivo en la cola (${rutaCompleta}):`,
+      error.message,
+    );
   } finally {
     procesandoCola = false;
     setTimeout(procesarSiguienteEnCola, 100);
@@ -128,17 +133,23 @@ async function esperarArchivoListo(ruta, timeoutSegundos = 30) {
 
 // Parsea la ruta física para extraer la Notaría y el Volumen de forma robusta
 function extraerNotariaYVolumen(rutaCompleta) {
-  const partes = rutaCompleta.split(path.sep);
+  const rutaNormalizada = rutaCompleta.replace(/\\/g, "/");
+  const partes = rutaNormalizada.split("/");
   let notaria = "NOTARIA GENERAL";
   let volumen = "SIN VOLUMEN";
 
-  const indexNotaria = partes.findIndex(p => p.toUpperCase().startsWith("NOTARIA"));
+  const indexNotaria = partes.findIndex((p) => {
+    const u = p.toUpperCase().trim();
+    return u.startsWith("NOTARIA") && u !== "NOTARIAS";
+  });
+
   if (indexNotaria !== -1) {
-    notaria = partes[indexNotaria];
-    
-    if (partes.length > indexNotaria + 2) {
-      const posibleVolumen = partes[indexNotaria + 1];
-      volumen = posibleVolumen;
+    notaria = partes[indexNotaria].trim();
+
+    // Si hay subcarpetas intermedias entre la notaría y el archivo final (.pdf)
+    const indexArchivo = partes.length - 1;
+    if (indexArchivo - 1 > indexNotaria) {
+      volumen = partes[indexArchivo - 1].trim();
     }
   }
 
@@ -156,7 +167,7 @@ async function procesarArchivoPdf(rutaCompleta) {
     console.warn(`El archivo ${archivo} no se estabilizó a tiempo en disco.`);
   }
 
-  // 2. Extraer metadatos de carpeta
+  // 2. Extraer Notaría y Volumen de la ruta física
   const { notaria, volumen } = extraerNotariaYVolumen(rutaCompleta);
 
   // 3. Contar páginas físicamente
@@ -168,21 +179,25 @@ async function procesarArchivoPdf(rutaCompleta) {
 
   // 5. Crear el registro en memoria
   const nuevoRegistro = {
-    fecha_hora: new Date().toISOString(),
+    fecha_hora: new Date().toISOString().slice(0, 19).replace("T", " "),
     turno: config.turnoActual || "Matutino",
-    usuario: config.usuarioActual || "Capturista Local",
+    usuario: config.usuarioCorto || "Capturista Local",
     pc: config.NombrePC || "PC-CLIENTE",
     notaria,
     volumen: volumen === "SIN VOLUMEN" ? null : volumen,
     archivo,
     paginas,
+    detalles: `PDF Escaneado en ${rutaCompleta}`,
     exportado: 0,
-    rutaCompleta
+    rutaCompleta,
   };
 
   // Notificar inmediatamente al renderer para mostrarlo en el historial de hoy
   if (global.ventanaPrincipal) {
-    global.ventanaPrincipal.webContents.send("registro-detectado", nuevoRegistro);
+    global.ventanaPrincipal.webContents.send(
+      "registro-detectado",
+      nuevoRegistro,
+    );
   }
 
   // 6. Intentar sincronizar con el Servidor Central
@@ -196,26 +211,46 @@ async function procesarArchivoPdf(rutaCompleta) {
 // Envía un registro de la auditoría e intenta transferir el archivo al servidor por API
 async function intentarSincronizarRegistro(registro) {
   try {
-    const urlSubir = `http://${ipServidor}:${puertoServidor}/api/importar-archivo`;
+    const urlSubir = `http://${ipServidor}:${puertoServidor}/api/registrar`;
     console.log(`Sincronizando registro con servidor central en: ${urlSubir}`);
-    
-    const respuesta = await axios.post(urlSubir, {
-      rutaCompleta: registro.rutaCompleta,
-      archivo: registro.archivo,
-      notaria: registro.notaria,
-      volumen: registro.volumen,
-      usuario: registro.usuario,
-      turno: registro.turno,
-      pc: registro.pc
-    });
+
+    const respuesta = await axios.post(
+      urlSubir,
+      {
+        fecha_hora:
+          registro.fecha_hora && registro.fecha_hora.includes("T")
+            ? registro.fecha_hora.slice(0, 19).replace("T", " ")
+            : registro.fecha_hora,
+        turno: registro.turno,
+        usuario: registro.usuario,
+        pc: registro.pc,
+        notaria: registro.notaria,
+        volumen: registro.volumen,
+        archivo: registro.archivo,
+        paginas: registro.paginas,
+        detalles: registro.detalles || null,
+        lugar_trabajo:
+          (global.configuracionPC && global.configuracionPC.LugarTrabajo) ||
+          null,
+      },
+      { timeout: 6000 },
+    );
 
     if (respuesta.data && respuesta.data.ok) {
-      console.log(`Sincronización exitosa en MySQL para archivo: ${registro.archivo}`);
-      
+      if (respuesta.data.duplicados > 0) {
+        console.log(
+          `Omitido por duplicado (ya registrado anteriormente en MySQL): ${registro.archivo}`,
+        );
+      } else {
+        console.log(
+          `Sincronización exitosa en MySQL (registro insertado): ${registro.archivo}`,
+        );
+      }
+
       if (global.ventanaPrincipal) {
         global.ventanaPrincipal.webContents.send("registro-sincronizado", {
           archivo: registro.archivo,
-          exportado: 1
+          exportado: 1,
         });
       }
       return true;
@@ -224,7 +259,9 @@ async function intentarSincronizarRegistro(registro) {
       return false;
     }
   } catch (error) {
-    console.warn(`Error al conectar con el servidor central (${registro.archivo}): ${error.message}`);
+    console.warn(
+      `Error al conectar con el servidor central (${registro.archivo}): ${error.message}`,
+    );
     return false;
   }
 }
@@ -233,8 +270,10 @@ async function intentarSincronizarRegistro(registro) {
 async function ejecutarSincronizacionPendientes() {
   if (pendientesSincronizacion.length === 0) return;
 
-  console.log(`Sincronizando ${pendientesSincronizacion.length} registros pendientes en memoria...`);
-  
+  console.log(
+    `Sincronizando ${pendientesSincronizacion.length} registros pendientes en memoria...`,
+  );
+
   const pendientesRestantes = [];
   for (const reg of pendientesSincronizacion) {
     const exito = await intentarSincronizarRegistro(reg);
@@ -254,14 +293,22 @@ async function verificarConexionServidor() {
     const urlHealth = `http://${ipServidor}:${puertoServidor}/api/digitalizacion`;
     const respuesta = await axios.get(urlHealth, { timeout: 2500 });
     const online = respuesta.data && respuesta.data.ok;
-    
-    if (global.ventanaPrincipal && !global.ventanaPrincipal.webContents.isDestroyed()) {
+
+    if (
+      global.ventanaPrincipal &&
+      !global.ventanaPrincipal.webContents.isDestroyed()
+    ) {
       global.ventanaPrincipal.webContents.send("conexion-estado", { online });
     }
     return online;
   } catch (err) {
-    if (global.ventanaPrincipal && !global.ventanaPrincipal.webContents.isDestroyed()) {
-      global.ventanaPrincipal.webContents.send("conexion-estado", { online: false });
+    if (
+      global.ventanaPrincipal &&
+      !global.ventanaPrincipal.webContents.isDestroyed()
+    ) {
+      global.ventanaPrincipal.webContents.send("conexion-estado", {
+        online: false,
+      });
     }
     return false;
   }
@@ -271,7 +318,7 @@ async function verificarConexionServidor() {
 const iniciarWatcherOriginal = iniciarWatcher;
 iniciarWatcher = function (rutaMonitoreo, ip = "localhost", puerto = "3000") {
   iniciarWatcherOriginal(rutaMonitoreo, ip, puerto);
-  
+
   if (intervaloPing) clearInterval(intervaloPing);
   verificarConexionServidor();
   intervaloPing = setInterval(verificarConexionServidor, 5000);
@@ -291,5 +338,5 @@ module.exports = {
   iniciarWatcher,
   detenerWatcher,
   ejecutarSincronizacionPendientes,
-  verificarConexionServidor
+  verificarConexionServidor,
 };
