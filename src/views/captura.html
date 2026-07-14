@@ -1,0 +1,240 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Digitalizacion Notarias</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <script src="https://code.iconify.design/iconify-icon/2.1.0/iconify-icon.min.js"></script>
+
+    <style>
+        :root {
+            --color-bg: #0b0f19;
+            --color-tarjeta: #121826;
+            --color-tarjeta-borde: #1e293b;
+            --color-primario: #3a6ac9;
+            --color-primario-brillo: rgba(58, 106, 201, 0.15);
+            --color-exito: #2ebd75;
+            --color-peligro: #ea5455;
+            --color-texto: #f8fafc;
+            --color-texto-secundario: #94a3b8;
+            --tipografia: 'Outfit', sans-serif;
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        body {
+            background-color: var(--color-bg);
+            color: var(--color-texto);
+            font-family: var(--tipografia);
+            width: 100vw;
+            height: 100vh;
+            overflow: hidden;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border: 1px solid var(--color-tarjeta-borde);
+            border-radius: 12px;
+        }
+
+        .widget-contenedor {
+            background-color: var(--color-tarjeta);
+            width: 100%;
+            height: 100%;
+            padding: 14px 16px;
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+        }
+
+        /* Cabecera Arrastrable */
+        .widget-cabecera {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            -webkit-app-region: drag; /* Permite arrastrar la ventana */
+            border-bottom: 1px solid var(--color-tarjeta-borde);
+            padding-bottom: 8px;
+        }
+
+        .usuario-info {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+
+        .usuario-info h4 {
+            font-size: 13.5px;
+            font-weight: 700;
+            color: var(--color-texto);
+            max-width: 190px;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+
+        .btn-cerrar-sesion {
+            background-color: rgba(234, 84, 85, 0.1);
+            border: 1px solid rgba(234, 84, 85, 0.2);
+            color: var(--color-peligro);
+            border-radius: 6px;
+            padding: 4px 8px;
+            font-size: 11px;
+            font-weight: 600;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            gap: 4px;
+            -webkit-app-region: no-drag; /* Evita conflicto de arrastre */
+            transition: background-color 0.2s;
+        }
+
+        .btn-cerrar-sesion:hover {
+            background-color: rgba(234, 84, 85, 0.2);
+        }
+
+        /* Sección de Ruta */
+        .seccion-ruta {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            background-color: var(--color-bg);
+            border: 1px solid var(--color-tarjeta-borde);
+            border-radius: 8px;
+            padding: 6px 10px;
+            margin: 10px 0;
+        }
+
+        .lbl-ruta {
+            font-size: 11.5px;
+            color: var(--color-texto-secundario);
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            max-width: 250px;
+        }
+
+        .btn-carpeta {
+            background: transparent;
+            border: none;
+            color: var(--color-primario);
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            font-size: 18px;
+            transition: transform 0.1s;
+        }
+
+        .btn-carpeta:hover {
+            transform: scale(1.1);
+        }
+
+        /* Estatus inferior y Contador */
+        .widget-inferior {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .estatus-watcher {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            font-size: 12px;
+            font-weight: 600;
+            color: var(--color-exito);
+        }
+
+        .estatus-watcher.inactivo {
+            color: var(--color-peligro);
+        }
+
+        .luz-pulso {
+            width: 8px;
+            height: 8px;
+            border-radius: 99px;
+            background-color: var(--color-exito);
+            box-shadow: 0 0 8px var(--color-exito);
+            animation: pulse 1.5s infinite;
+        }
+
+        .estatus-watcher.inactivo .luz-pulso {
+            background-color: var(--color-peligro);
+            box-shadow: 0 0 8px var(--color-peligro);
+        }
+
+        .contador-sesion {
+            font-size: 12px;
+            font-weight: 700;
+            background-color: var(--color-primario-brillo);
+            border: 1px solid rgba(58, 106, 201, 0.3);
+            color: var(--color-texto);
+            padding: 3px 8px;
+            border-radius: 6px;
+        }
+
+        @keyframes pulse {
+            0% {
+                transform: scale(0.9);
+                opacity: 0.6;
+            }
+            50% {
+                transform: scale(1.1);
+                opacity: 1;
+            }
+            100% {
+                transform: scale(0.9);
+                opacity: 0.6;
+            }
+        }
+    </style>
+</head>
+<body>
+
+    <div class="widget-contenedor">
+        <!-- Fila 1: Cabecera -->
+        <div class="widget-cabecera">
+            <div class="usuario-info">
+                <iconify-icon icon="mdi:account-circle" style="font-size: 18px; color: var(--color-primario);"></iconify-icon>
+                <h4 id="lblUsuario">Cargando...</h4>
+            </div>
+            <button id="btnCerrarSesion" class="btn-cerrar-sesion">
+                <iconify-icon icon="mdi:logout" style="font-size: 12px;"></iconify-icon>
+                Salir
+            </button>
+        </div>
+
+        <!-- Fila 2: Carpeta de Trabajo -->
+        <div class="seccion-ruta">
+            <span id="lblRuta" class="lbl-ruta">Ruta: Selecciona carpeta de trabajo</span>
+            <button id="btnCambiarRuta" class="btn-carpeta" title="Cambiar Carpeta de Trabajo">
+                <iconify-icon icon="mdi:folder-open"></iconify-icon>
+            </button>
+        </div>
+
+        <!-- Fila 3: Estatus y Contador -->
+        <div class="widget-inferior">
+            <div style="display: flex; align-items: center; gap: 10px;">
+                <div id="wrapperEstatus" class="estatus-watcher">
+                    <div class="luz-pulso"></div>
+                    <span id="lblEstatus">Vigilando</span>
+                </div>
+                <span id="lblRed" style="font-size: 11px; font-weight: 600; color: var(--color-exito); display: flex; align-items: center; gap: 3px;">
+                    <iconify-icon icon="mdi:wifi" style="font-size: 13px;"></iconify-icon>
+                    <span>Online</span>
+                </span>
+            </div>
+            <div id="lblContador" class="contador-sesion">Capturados: 0</div>
+        </div>
+    </div>
+
+    <!-- Cargar Lógica del Widget -->
+    <script src="captura.js"></script>
+</body>
+</html>

@@ -1,0 +1,305 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Digitalizacion Notarias</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <script src="https://code.iconify.design/iconify-icon/2.1.0/iconify-icon.min.js"></script>
+
+    <style>
+        :root {
+            --color-bg: #0b0f19;
+            --color-tarjeta: #121826;
+            --color-tarjeta-borde: #1e293b;
+            --color-primario: #3a6ac9;
+            --color-primario-brillo: rgba(58, 106, 201, 0.15);
+            --color-texto: #f8fafc;
+            --color-texto-secundario: #94a3b8;
+            --color-peligro: #ea5455;
+            --tipografia: 'Outfit', sans-serif;
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        body {
+            background-color: var(--color-bg);
+            color: var(--color-texto);
+            font-family: var(--tipografia);
+            height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            overflow: hidden;
+        }
+
+        /* Tarjeta de Login */
+        .tarjeta-login {
+            background-color: var(--color-tarjeta);
+            border: 1px solid var(--color-tarjeta-borde);
+            width: 100%;
+            height: 100%;
+            padding: 30px;
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+            position: relative;
+        }
+
+        .login-cabecera {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+        }
+
+        .login-marca {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .login-marca h2 {
+            font-size: 18px;
+            font-weight: 700;
+            background: linear-gradient(135deg, #f8fafc 30%, #3a6ac9 100%);
+            background-clip: text;
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        .btn-opciones {
+            background: transparent;
+            border: 1px solid var(--color-tarjeta-borde);
+            color: var(--color-texto-secundario);
+            border-radius: 8px;
+            width: 36px;
+            height: 36px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            transition: border-color 0.2s, color 0.2s;
+        }
+
+        .btn-opciones:hover {
+            border-color: var(--color-primario);
+            color: var(--color-texto);
+        }
+
+        /* Formulario */
+        .formulario-campos {
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+            flex: 1;
+            justify-content: center;
+        }
+
+        .campo-grupo {
+            display: flex;
+            flex-direction: column;
+            gap: 6px;
+        }
+
+        .campo-grupo label {
+            font-size: 11px;
+            font-weight: 600;
+            color: var(--color-texto-secundario);
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .campo-input {
+            width: 100%;
+            height: 42px;
+            background-color: var(--color-bg);
+            border: 1px solid var(--color-tarjeta-borde);
+            border-radius: 8px;
+            color: var(--color-texto);
+            padding: 0 14px;
+            font-family: var(--tipografia);
+            font-size: 14px;
+            transition: border-color 0.2s, box-shadow 0.2s;
+        }
+
+        .campo-input:focus {
+            outline: none;
+            border-color: var(--color-primario);
+            box-shadow: 0 0 0 2px var(--color-primario-brillo);
+        }
+
+        .btn-iniciar {
+            width: 100%;
+            height: 44px;
+            background-color: var(--color-primario);
+            border: 1px solid var(--color-primario);
+            color: white;
+            border-radius: 8px;
+            font-weight: 700;
+            font-size: 14.5px;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+            transition: opacity 0.2s;
+            margin-top: 10px;
+        }
+
+        .btn-iniciar:hover {
+            opacity: 0.9;
+        }
+
+        .error-mensaje {
+            color: var(--color-peligro);
+            font-size: 12px;
+            font-weight: 500;
+            text-align: center;
+            min-height: 18px;
+        }
+
+        /* MODAL DE CONFIGURACIÓN (Opciones) */
+        .modal-config {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: var(--color-tarjeta);
+            z-index: 10;
+            padding: 25px;
+            display: none; /* Oculto por defecto */
+            flex-direction: column;
+            justify-content: space-between;
+        }
+
+        .modal-cabecera {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            border-bottom: 1px solid var(--color-tarjeta-borde);
+            padding-bottom: 12px;
+            margin-bottom: 15px;
+        }
+
+        .modal-cabecera h3 {
+            font-size: 15px;
+            font-weight: 700;
+            color: var(--color-texto);
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+
+        .control-select {
+            width: 100%;
+            height: 38px;
+            background-color: var(--color-bg);
+            border: 1px solid var(--color-tarjeta-borde);
+            border-radius: 8px;
+            color: var(--color-texto);
+            padding: 0 10px;
+            font-family: var(--tipografia);
+            font-size: 13px;
+        }
+
+        .control-select:focus {
+            outline: none;
+            border-color: var(--color-primario);
+        }
+    </style>
+</head>
+<body>
+
+    <div class="tarjeta-login">
+        <!-- Cabecera -->
+        <div class="login-cabecera">
+            <div class="login-marca">
+                <iconify-icon icon="mdi:shield-account" style="font-size: 24px; color: var(--color-primario);"></iconify-icon>
+                <h2>Captura Notarías</h2>
+            </div>
+            <button id="btnAbrirConfig" class="btn-opciones" title="Configuración de PC">
+                <iconify-icon icon="mdi:cog" style="font-size: 20px;"></iconify-icon>
+            </button>
+        </div>
+
+        <!-- Formulario de Login -->
+        <div class="formulario-campos">
+            <div class="campo-grupo">
+                <label for="txtUsuario">Usuario</label>
+                <input type="text" id="txtUsuario" class="campo-input" placeholder="Nombre de capturista" autofocus>
+            </div>
+            <div class="campo-grupo" style="margin-top: 5px;">
+                <label for="txtPin">PIN de Acceso</label>
+                <input type="password" id="txtPin" class="campo-input" placeholder="••••" maxlength="8">
+            </div>
+
+            <div id="lblError" class="error-mensaje"></div>
+
+            <button id="btnIniciarSesion" class="btn-iniciar">
+                <iconify-icon icon="mdi:login" style="font-size: 18px;"></iconify-icon>
+                Iniciar Sesión
+            </button>
+        </div>
+
+        <!-- MODAL DE CONFIGURACIÓN -->
+        <div id="modalConfig" class="modal-config">
+            <div>
+                <div class="modal-cabecera">
+                    <h3><iconify-icon icon="mdi:cog-outline" style="font-size: 18px; color: var(--color-primario);"></iconify-icon> Opciones Generales</h3>
+                    <button id="btnCerrarConfig" class="btn-opciones" style="width: 28px; height: 28px; border:none;" title="Volver al Login">
+                        <iconify-icon icon="mdi:close" style="font-size: 18px;"></iconify-icon>
+                    </button>
+                </div>
+
+                <div style="display: flex; flex-direction: column; gap: 10px;">
+                    <div class="campo-grupo">
+                        <label for="txtServidor">Ruta del Servidor Local (UNC)</label>
+                        <input type="text" id="txtServidor" class="campo-input" style="height:36px; font-size:12.5px;" placeholder="Ej. \\192.168.1.10\NOTARIAS">
+                    </div>
+
+                    <div style="display: flex; gap: 10px;">
+                        <div class="campo-grupo" style="flex: 1;">
+                            <label for="txtPC">Identificación PC</label>
+                            <input type="text" id="txtPC" class="campo-input" style="height:36px;" placeholder="Ej. PC-01">
+                        </div>
+                        <div class="campo-grupo" style="flex: 1.2;">
+                            <label for="cboLugar">Lugar de Trabajo</label>
+                            <select id="cboLugar" class="control-select">
+                                <option value="5 de mayo - 1">5 de mayo - 1</option>
+                                <option value="5 de mayo - 2">5 de mayo - 2</option>
+                                <option value="IREC">IREC</option>
+                                <option value="RPP">RPP</option>
+                            </select>
+                        </div>
+                    </div>
+
+                    <div class="campo-grupo">
+                        <label for="cboTipo">Tipo de Captura</label>
+                        <select id="cboTipo" class="control-select">
+                            <option value="NOTARIAS">NOTARIAS</option>
+                            <option value="LIBROS">LIBROS</option>
+                            <option value="NOMINAS">NOMINAS</option>
+                        </select>
+                    </div>
+                </div>
+            </div>
+
+            <button id="btnGuardarConfig" class="btn-iniciar" style="height: 38px; font-size: 13.5px; background-color: var(--color-primario); border-color: var(--color-primario);">
+                <iconify-icon icon="mdi:content-save" style="font-size: 16px;"></iconify-icon>
+                Guardar Cambios
+            </button>
+        </div>
+    </div>
+
+    <!-- Cargar Lógica del Login -->
+    <script src="login.js"></script>
+</body>
+</html>

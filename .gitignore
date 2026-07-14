@@ -1,0 +1,10 @@
+# Ignorar dependencias
+/node_modules/
+
+# Ignorar configuraciones y datos locales del cliente
+/data/
+
+# Ignorar archivos del sistema y logs
+*.log
+.DS_Store
+Thumbs.db
