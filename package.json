@@ -5,6 +5,7 @@
   "main": "src/main.js",
   "scripts": {
     "start": "electron .",
+    "build": "electron-builder build --windows",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "keywords": [],
@@ -16,7 +17,29 @@
     "pdf-lib": "^1.17.1"
   },
   "devDependencies": {
-    "electron": "^32.0.0"
+    "electron": "^32.0.0",
+    "electron-builder": "^26.15.3"
+  },
+  "build": {
+    "appId": "com.irec.digitalizacionnotarias",
+    "productName": "DigitalizacionNotarias",
+    "directories": {
+      "output": "dist"
+    },
+    "win": {
+      "target": "nsis"
+    },
+    "nsis": {
+      "oneClick": true,
+      "allowToChangeInstallationDirectory": false,
+      "createDesktopShortcut": true,
+      "createStartMenuShortcut": true,
+      "shortcutName": "Digitalización Notarías"
+    },
+    "files": [
+      "src/**/*",
+      "package.json"
+    ]
   },
   "pnpm": {
     "onlyBuiltDependencies": [
