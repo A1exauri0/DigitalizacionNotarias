@@ -13,7 +13,11 @@ const axios = require("axios");
 const watcher = require("./utils/watcherDirectorios");
 
 // Ruta de configuración exacta de la aplicación C# original
-const RUTA_CONFIG = path.join(app.getPath("appData"), "CapturaNotarias", "config.json");
+const RUTA_CONFIG = path.join(
+  app.getPath("appData"),
+  "CapturaNotarias",
+  "config.json",
+);
 
 let ventanaLogin = null;
 let ventanaWidget = null;
@@ -25,18 +29,21 @@ const CONFIG_POR_DEFECTO = {
   UltimaRutaVigilada: "",
   NombrePC: "",
   LugarTrabajo: "IREC",
-  UrlApi: "https://app.astronmx.cloud/api/digitalizacion/registrar",
+  UrlApi: "http://192.168.1.10:3000/api/registrar",
   ActivarEnvioAuditoria: false,
-  TipoCaptura: "NOTARIAS"
+  TipoCaptura: "NOTARIAS",
 };
 
 // Resuelve dinámicamente la URL del servidor basada en la ruta o IP de red de C#
 function obtenerUrlServidor(config) {
   const ruta = config.RutaServidorAuditoria || "";
-  
+
   if (ruta.startsWith("\\\\") || ruta.startsWith("//")) {
     const sinBarras = ruta.replace(/^[\\/]+/, "");
-    const idx = sinBarras.indexOf("\\") !== -1 ? sinBarras.indexOf("\\") : sinBarras.indexOf("/");
+    const idx =
+      sinBarras.indexOf("\\") !== -1
+        ? sinBarras.indexOf("\\")
+        : sinBarras.indexOf("/");
     const host = idx !== -1 ? sinBarras.substring(0, idx) : sinBarras;
     return `http://${host}:3000`;
   }
@@ -54,7 +61,11 @@ async function obtenerConfiguracion() {
       const contenido = await fs.readFile(RUTA_CONFIG, "utf8");
       return JSON.parse(contenido);
     } catch (e) {
-      await fs.writeFile(RUTA_CONFIG, JSON.stringify(CONFIG_POR_DEFECTO, null, 2), "utf8");
+      await fs.writeFile(
+        RUTA_CONFIG,
+        JSON.stringify(CONFIG_POR_DEFECTO, null, 2),
+        "utf8",
+      );
       return CONFIG_POR_DEFECTO;
     }
   } catch (error) {
@@ -68,7 +79,7 @@ async function guardarConfiguracion(config) {
   try {
     const directorio = path.dirname(RUTA_CONFIG);
     await fs.mkdir(directorio, { recursive: true });
-    
+
     // Mantener la URL del API por compatibilidad
     if (!config.UrlApi) {
       config.UrlApi = CONFIG_POR_DEFECTO.UrlApi;
@@ -95,9 +106,9 @@ function crearVentanaLogin() {
     webPreferences: {
       preload: path.join(__dirname, "preload.js"),
       contextIsolation: true,
-      nodeIntegration: false
+      nodeIntegration: false,
     },
-    autoHideMenuBar: true
+    autoHideMenuBar: true,
   });
 
   ventanaLogin.loadFile(path.join(__dirname, "views", "login.html"));
@@ -134,8 +145,8 @@ function crearVentanaWidget() {
     webPreferences: {
       preload: path.join(__dirname, "preload.js"),
       contextIsolation: true,
-      nodeIntegration: false
-    }
+      nodeIntegration: false,
+    },
   });
 
   ventanaWidget.loadFile(path.join(__dirname, "views", "captura.html"));
@@ -188,7 +199,7 @@ ipcMain.handle("seleccionar-directorio", async () => {
   if (!ventanaActiva) return null;
 
   const resultado = await dialog.showOpenDialog(ventanaActiva, {
-    properties: ["openDirectory"]
+    properties: ["openDirectory"],
   });
 
   if (resultado.canceled) {
@@ -216,19 +227,24 @@ ipcMain.handle("intentar-login", async (evento, { usuario, pin }) => {
     const urlLogin = `${urlBase}/api/usuarios/login`;
     console.log(`Intentando conectar para login en: ${urlLogin}`);
 
-    const respuesta = await axios.post(urlLogin, {
-      nombre_usuario: usuario,
-      pin: pin
-    }, { timeout: 6000 });
+    const respuesta = await axios.post(
+      urlLogin,
+      {
+        nombre_usuario: usuario,
+        pin: pin,
+      },
+      { timeout: 6000 },
+    );
 
     if (respuesta.data && respuesta.data.ok && respuesta.data.usuario) {
       const datosUser = respuesta.data.usuario;
-      
+
       // Guardar sesión en memoria global del proceso principal
       global.usuarioSesion = datosUser;
-      
+
       // Pasar datos de sesión a memoria de la configuración
-      config.usuarioActual = datosUser.nombre_completo || datosUser.nombre_usuario;
+      config.usuarioActual =
+        datosUser.nombre_completo || datosUser.nombre_usuario;
       config.usuarioCorto = datosUser.nombre_usuario;
       config.turnoActual = datosUser.turno || "Matutino";
       await guardarConfiguracion(config);
@@ -258,7 +274,7 @@ ipcMain.handle("intentar-login", async (evento, { usuario, pin }) => {
     const userOffline = {
       nombre_usuario: "admin",
       nombre_completo: "Administrador Local (Offline)",
-      turno: "Matutino"
+      turno: "Matutino",
     };
 
     global.usuarioSesion = userOffline;
@@ -280,7 +296,10 @@ ipcMain.handle("intentar-login", async (evento, { usuario, pin }) => {
     return { ok: true, usuario: userOffline };
   }
 
-  return { ok: false, mensaje: "Credenciales incorrectas o servidor no disponible." };
+  return {
+    ok: false,
+    mensaje: "Credenciales incorrectas o servidor no disponible.",
+  };
 });
 
 // IPC Listener: Cerrar Sesión (Regresa a Login)

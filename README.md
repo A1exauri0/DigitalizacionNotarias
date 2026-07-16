@@ -6,9 +6,10 @@ Este proyecto es la aplicación cliente de digitalización desarrollada en **Ele
 
 ## Topología de Red y Arquitectura
 
+* **Entorno sin Internet**: Por diseño y seguridad, las terminales de captura de los usuarios **no tienen acceso a internet**. Están interconectadas de forma local mediante un switch de red ethernet a la PC central que actúa como servidor.
 * **Servidor Central (`ServidorNotarias`)**: Corre en la PC principal con la IP **`192.168.1.10`** (puerto `3000`).
-* **Clientes de Digitalización (`DigitalizacionNotarias`)**: Corren en las diferentes PCs de la red (ej. `192.168.1.11`, `192.168.1.12`, etc.).
-* **Unidad de Red Compartida**: Los capturistas guardan/escanean físicamente los PDFs de su trabajo directamente en una unidad de red compartida accesible por todas las máquinas.
+* **Clientes de Digitalización (`DigitalizacionNotarias`)**: Corren en las diferentes PCs locales de la red (ej. `192.168.1.11`, `192.168.1.12`, etc.).
+* **Unidad de Red Compartida**: Los capturistas guardan/escanean físicamente los PDFs de su trabajo directamente en una unidad de red compartida (`\\\\192.168.1.10\\NOTARIAS`) accesible localmente por todas las máquinas.
 * **Flujo de Auditoría**: Cuando el cliente detecta la caída de un nuevo PDF en su carpeta vigilada (dentro de la unidad de red), procesa la cantidad de páginas y envía una notificación HTTP POST al servidor central en `http://192.168.1.10:3000/api/registrar` para registrar el evento en MySQL. **No se realiza copia física de archivos por parte del servidor**, garantizando transacciones ultra rápidas en milisegundos.
 
 ---

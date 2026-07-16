@@ -8,3 +8,7 @@
 *.log
 .DS_Store
 Thumbs.db
+
+# Salidas de compilacion y empaquetado de Electron
+dist/
+release/
