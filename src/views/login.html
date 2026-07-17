@@ -8,7 +8,6 @@
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700&display=swap" rel="stylesheet">
 
-
     <style>
         :root {
             --color-bg: #0b0f19;
@@ -222,11 +221,11 @@
         <!-- Cabecera -->
         <div class="login-cabecera">
             <div class="login-marca">
-                <svg width="24" height="24" viewBox="0 0 24 24" fill="currentColor" style="color: var(--color-primario); vertical-align: middle; margin-right: 6px;"><path d="M12 2l8 3v6c0 5.55-3.84 10.74-9 12-5.16-1.26-9-6.45-9-12V5l8-3zm0 4a3 3 0 0 0-3 3c0 1.66 1.34 3 3 3s3-1.34 3-3a3 3 0 0 0-3-3zm0 8.2c-2 0-6 1.09-6 3.08v.8h12v-.8c0-1.99-4-3.08-6-3.08z"/></svg>
+                <img src="assets/shield-account.svg" style="width: 24px; height: 24px; vertical-align: middle; margin-right: 6px;" alt="Logo">
                 <h2>Digitalizacion Notarías</h2>
             </div>
             <button id="btnAbrirConfig" class="btn-opciones" title="Configuración de PC">
-                <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor" style="vertical-align: middle;"><path d="M19.14 12.94c.04-.3.06-.61.06-.94 0-.32-.02-.64-.07-.94l2.03-1.58a.49.49 0 0 0 .12-.61l-1.92-3.32a.488.488 0 0 0-.59-.22l-2.39.96c-.5.-38-1.03-.7-1.62-.94l-.36-2.54a.484.484 0 0 0-.48-.41h-3.84a.48.48 0 0 0-.48.41l-.36 2.54c-.59.24-1.13.57-1.62.94l-.36 2.54c-.59-.24-1.13-.56-1.62-.94l2.39.96c.22.08.47.01.59-.22l1.92-3.32a.49.49 0 0 0-.12-.61l-2.03-1.58zM12 15.6c-1.98 0-3.6-1.62-3.6-3.6s1.62-3.6 3.6-3.6 3.6 1.62 3.6 3.6-1.62 3.6-3.6 3.6z"/></svg>
+                <img src="assets/cog.svg" style="width: 20px; height: 20px; vertical-align: middle;" alt="Config">
             </button>
         </div>
 
@@ -244,7 +243,7 @@
             <div id="lblError" class="error-mensaje"></div>
 
             <button id="btnIniciarSesion" class="btn-iniciar">
-                <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor" style="vertical-align: middle; margin-right: 6px;"><path d="M10 17v-3H3v-4h7V7l5 5-5 5m11-13h-9a2 2 0 0 0-2 2v2h2V5h9v14h-9v-3h-2v2a2 2 0 0 0 2 2h9a2 2 0 0 0 2-2V5a2 2 0 0 0-2-2z"/></svg>
+                <img src="assets/login.svg" style="width: 18px; height: 18px; vertical-align: middle; margin-right: 6px;" alt="Login">
                 Iniciar Sesión
             </button>
         </div>
@@ -253,9 +252,9 @@
         <div id="modalConfig" class="modal-config">
             <div>
                 <div class="modal-cabecera">
-                    <h3><svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor" style="color: var(--color-primario); vertical-align: middle; margin-right: 6px;"><path d="M19.14 12.94c.04-.3.06-.61.06-.94 0-.32-.02-.64-.07-.94l2.03-1.58a.49.49 0 0 0 .12-.61l-1.92-3.32a.488.488 0 0 0-.59-.22l-2.39.96c-.5.-38-1.03-.7-1.62-.94l-.36-2.54a.484.484 0 0 0-.48-.41h-3.84a.48.48 0 0 0-.48.41l-.36 2.54c-.59.24-1.13.57-1.62.94l-.36 2.54c-.59-.24-1.13-.56-1.62-.94l2.39.96c.22.08.47.01.59-.22l1.92-3.32a.49.49 0 0 0-.12-.61l-2.03-1.58zM12 15.6c-1.98 0-3.6-1.62-3.6-3.6s1.62-3.6 3.6-3.6 3.6 1.62 3.6 3.6-1.62 3.6-3.6 3.6z"/></svg> Opciones Generales</h3>
+                    <h3><img src="assets/cog-outline.svg" style="width: 18px; height: 18px; vertical-align: middle; margin-right: 6px;" alt="Opciones"> Opciones Generales</h3>
                     <button id="btnCerrarConfig" class="btn-opciones" style="width: 28px; height: 28px; border:none;" title="Volver al Login">
-                        <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor" style="vertical-align: middle;"><path d="M19 6.41L17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12 19 6.41z"/></svg>
+                        <img src="assets/close.svg" style="width: 18px; height: 18px; vertical-align: middle;" alt="Cerrar">
                     </button>
                 </div>
 
@@ -293,7 +292,7 @@
             </div>
 
             <button id="btnGuardarConfig" class="btn-iniciar" style="height: 38px; font-size: 13.5px; background-color: var(--color-primario); border-color: var(--color-primario);">
-                <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor" style="vertical-align: middle; margin-right: 6px;"><path d="M15 9H5V5h10m-3 14a3 3 0 0 1-3-3 3 3 0 0 1 3-3 3 3 0 0 1 3 3 3 3 0 0 1-3 3m5-16H5a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V7l-4-4z"/></svg>
+                <img src="assets/content-save.svg" style="width: 16px; height: 16px; vertical-align: middle; margin-right: 6px;" alt="Guardar">
                 Guardar Cambios
             </button>
         </div>

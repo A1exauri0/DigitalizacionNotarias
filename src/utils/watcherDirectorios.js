@@ -39,7 +39,13 @@ function iniciarWatcher(rutaMonitoreo, ip = "localhost", puerto = "3000") {
     persistent: true,
     depth: 9,
     ignoreInitial: true,
-    awaitWriteFinish: false,
+    usePolling: true,
+    interval: 1000,
+    binaryInterval: 3000,
+    awaitWriteFinish: {
+      stabilityThreshold: 2000,
+      pollInterval: 500
+    }
   });
 
   watcherInstancia.on("add", (rutaCompleta) => {
@@ -162,7 +168,7 @@ async function procesarArchivoPdf(rutaCompleta) {
   console.log(`Procesando archivo: ${archivo}`);
 
   // 1. Esperar estabilidad del archivo (evita conteos de 1 página)
-  const listo = await esperarArchivoListo(rutaCompleta, 30);
+  const listo = await esperarArchivoListo(rutaCompleta, 5);
   if (!listo) {
     console.warn(`El archivo ${archivo} no se estabilizó a tiempo en disco.`);
   }

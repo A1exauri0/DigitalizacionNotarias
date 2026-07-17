@@ -24,6 +24,7 @@ document.addEventListener("DOMContentLoaded", async () => {
 
     if (configLocal.UltimaRutaVigilada) {
       lblRuta.textContent = `Ruta: ${configLocal.UltimaRutaVigilada}`;
+      window.apiElectron.iniciarMonitoreo(); // Asegurar inicio del watcher
       actualizarInterfazWatcher("Monitoreando");
     } else {
       lblRuta.textContent = "Ruta: Sin vigilar. Elige una carpeta.";
@@ -40,6 +41,7 @@ document.addEventListener("DOMContentLoaded", async () => {
       
       // Guardar e iniciar watcher en caliente
       await window.apiElectron.guardarConfiguracion(configLocal);
+      window.apiElectron.iniciarMonitoreo(); // Reiniciar watcher con la nueva ruta en caliente
       actualizarInterfazWatcher("Monitoreando");
     }
   });
@@ -73,10 +75,10 @@ document.addEventListener("DOMContentLoaded", async () => {
   window.apiElectron.alCambiarConexion((datos) => {
     if (datos.online) {
       lblRed.style.color = "var(--color-exito)";
-      lblRed.innerHTML = `<iconify-icon icon="mdi:wifi" style="font-size: 13px;"></iconify-icon> <span>Online</span>`;
+      lblRed.innerHTML = `<img src="assets/wifi.svg" style="width: 13px; height: 13px; vertical-align: middle; margin-right: 2px;" alt="Online"> <span>Online</span>`;
     } else {
       lblRed.style.color = "var(--color-peligro)";
-      lblRed.innerHTML = `<iconify-icon icon="mdi:wifi-off" style="font-size: 13px;"></iconify-icon> <span>Offline</span>`;
+      lblRed.innerHTML = `<img src="assets/wifi-off.svg" style="width: 13px; height: 13px; vertical-align: middle; margin-right: 2px;" alt="Offline"> <span>Offline</span>`;
     }
   });
 
