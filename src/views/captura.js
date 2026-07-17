@@ -32,6 +32,19 @@ document.addEventListener("DOMContentLoaded", async () => {
     }
   }
 
+  const btnToggleHistorial = document.getElementById("btnToggleHistorial");
+
+  // Cargar e inicializar el contador de capturas del dia
+  async function inicializarContador() {
+    const registros = await window.apiElectron.obtenerHistorialSesion();
+    const hoyStr = new Date().toISOString().slice(0, 10);
+    const registrosDeHoy = registros.filter(r => r.fecha_hora && r.fecha_hora.startsWith(hoyStr));
+    contadorSesion = registrosDeHoy.length;
+    lblContador.textContent = `Capturados: ${contadorSesion}`;
+  }
+
+  await inicializarContador();
+
   // 2. Evento: Cambiar Carpeta de Trabajo
   btnCambiarRuta.addEventListener("click", async () => {
     const nuevaRuta = await window.apiElectron.seleccionarDirectorio();
@@ -46,19 +59,26 @@ document.addEventListener("DOMContentLoaded", async () => {
     }
   });
 
+  // Evento: Abrir Ventana Independiente de Historial
+  if (btnToggleHistorial) {
+    btnToggleHistorial.addEventListener("click", () => {
+      window.apiElectron.abrirHistorial();
+    });
+  }
+
   // 3. Evento: Cerrar Sesión y volver al Login
   btnCerrarSesion.addEventListener("click", () => {
     window.apiElectron.cerrarSesion();
   });
 
   // 4. IPC: Escuchar Nuevos PDFs Detectados en el Watcher
-  window.apiElectron.alDetectarRegistro((nuevoRegistro) => {
-    contadorSesion++;
-    lblContador.textContent = `Capturados: ${contadorSesion}`;
-    
-    // Retroalimentación visual momentánea
+  window.apiElectron.alDetectarRegistro(async (nuevoRegistro) => {
+    // Recargar contador en caliente
+    await inicializarContador();
+
+    // Retroalimentación visual momentánea en estatus
     lblEstatus.textContent = "Guardando...";
-    wrapperEstatus.className = "estatus-watcher"; // Mantener verde o cambiar a color cargando
+    wrapperEstatus.className = "estatus-watcher";
     
     setTimeout(() => {
       lblEstatus.textContent = "Vigilando";
@@ -66,8 +86,10 @@ document.addEventListener("DOMContentLoaded", async () => {
   });
 
   // IPC: Escuchar Sincronización Exitosa con MySQL Central
-  window.apiElectron.alSincronizarRegistro((datos) => {
+  window.apiElectron.alSincronizarRegistro(async (datos) => {
     console.log(`Archivo sincronizado con éxito: ${datos.archivo}`);
+    // Actualizar el contador en caliente
+    await inicializarContador();
   });
 
   // IPC: Escuchar Cambios de Conectividad con el Servidor

@@ -18,6 +18,46 @@ let procesandoCola = false;
 
 // Historial en memoria de la sesión para reintentos de red
 let pendientesSincronizacion = [];
+let rutaHistorialJson = "";
+let historialMemoria = [];
+
+// Inicializa la persistencia del historial
+async function inicializarHistorial(directorioConfig) {
+  rutaHistorialJson = path.join(directorioConfig, "historial_capturas.json");
+  try {
+    try {
+      await fs.access(rutaHistorialJson);
+      const contenido = await fs.readFile(rutaHistorialJson, "utf8");
+      historialMemoria = JSON.parse(contenido);
+      if (!Array.isArray(historialMemoria)) {
+        historialMemoria = [];
+      }
+    } catch (e) {
+      historialMemoria = [];
+      await fs.writeFile(rutaHistorialJson, JSON.stringify(historialMemoria, null, 2), "utf8");
+    }
+
+    // Cargar pendientes a la cola de reintentos
+    pendientesSincronizacion = historialMemoria.filter(reg => reg.sincronizado === 0);
+    console.log(`Historial persistente cargado: ${historialMemoria.length} registros (${pendientesSincronizacion.length} pendientes).`);
+  } catch (err) {
+    console.error("Error al inicializar historial persistente:", err);
+    historialMemoria = [];
+  }
+}
+
+async function obtenerHistorialSesion() {
+  return historialMemoria;
+}
+
+async function guardarHistorialDisco() {
+  if (!rutaHistorialJson) return;
+  try {
+    await fs.writeFile(rutaHistorialJson, JSON.stringify(historialMemoria, null, 2), "utf8");
+  } catch (err) {
+    console.error("Error al guardar historial en disco:", err);
+  }
+}
 
 // Configuración de red del servidor central
 let ipServidor = "localhost";
@@ -195,8 +235,17 @@ async function procesarArchivoPdf(rutaCompleta) {
     paginas,
     detalles: `PDF Escaneado en ${rutaCompleta}`,
     exportado: 0,
+    sincronizado: 0, // Pendiente inicialmente
     rutaCompleta,
   };
+
+  // Guardar en el historial local persistente
+  historialMemoria.unshift(nuevoRegistro);
+  if (historialMemoria.length > 200) {
+    // Mantener limite de 200 registros maximo, removiendo los viejos ya sincronizados
+    historialMemoria = historialMemoria.filter((reg, idx) => idx < 200 || reg.sincronizado === 0);
+  }
+  await guardarHistorialDisco();
 
   // Notificar inmediatamente al renderer para mostrarlo en el historial de hoy
   if (global.ventanaPrincipal) {
@@ -253,10 +302,21 @@ async function intentarSincronizarRegistro(registro) {
         );
       }
 
+      // Actualizar estado en el historial en memoria y en disco
+      registro.sincronizado = 1;
+      registro.exportado = 1;
+      const regEnHistorial = historialMemoria.find(r => r.archivo === registro.archivo && r.fecha_hora === registro.fecha_hora);
+      if (regEnHistorial) {
+        regEnHistorial.sincronizado = 1;
+        regEnHistorial.exportado = 1;
+      }
+      await guardarHistorialDisco();
+
       if (global.ventanaPrincipal) {
         global.ventanaPrincipal.webContents.send("registro-sincronizado", {
           archivo: registro.archivo,
           exportado: 1,
+          sincronizado: 1
         });
       }
       return true;
@@ -345,4 +405,6 @@ module.exports = {
   detenerWatcher,
   ejecutarSincronizacionPendientes,
   verificarConexionServidor,
+  inicializarHistorial,
+  obtenerHistorialSesion,
 };

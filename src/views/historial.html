@@ -1,0 +1,264 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Historial de Capturas</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+
+    <style>
+        :root {
+            --color-bg: #0b0f19;
+            --color-tarjeta: #121826;
+            --color-tarjeta-borde: #1e293b;
+            --color-primario: #3a6ac9;
+            --color-primario-brillo: rgba(58, 106, 201, 0.15);
+            --color-exito: #2ebd75;
+            --color-peligro: #ea5455;
+            --color-texto: #f8fafc;
+            --color-texto-secundario: #94a3b8;
+            --tipografia: 'Outfit', sans-serif;
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        body {
+            background-color: var(--color-bg);
+            color: var(--color-texto);
+            font-family: var(--tipografia);
+            width: 100vw;
+            height: 100vh;
+            overflow: hidden;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .contenedor-historial {
+            background-color: var(--color-tarjeta);
+            border: 1px solid var(--color-tarjeta-borde);
+            border-radius: 12px;
+            width: 100%;
+            height: 100%;
+            padding: 20px;
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+        }
+
+        /* Cabecera */
+        .historial-cabecera {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            border-bottom: 1px solid var(--color-tarjeta-borde);
+            padding-bottom: 12px;
+            margin-bottom: 12px;
+        }
+
+        .historial-titulo-seccion {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .historial-titulo-seccion h2 {
+            font-size: 18px;
+            font-weight: 700;
+            color: var(--color-texto);
+        }
+
+        .badge-pendientes {
+            font-size: 11px;
+            font-weight: 600;
+            color: var(--color-peligro);
+            background-color: rgba(234, 84, 85, 0.1);
+            border: 1px solid rgba(234, 84, 85, 0.2);
+            padding: 2px 8px;
+            border-radius: 6px;
+        }
+
+        .btn-regresar {
+            background-color: var(--color-primario-brillo);
+            border: 1px solid rgba(58, 106, 201, 0.3);
+            color: var(--color-primario);
+            border-radius: 8px;
+            padding: 6px 14px;
+            font-size: 12.5px;
+            font-weight: 600;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            transition: all 0.2s;
+        }
+
+        .btn-regresar:hover {
+            background-color: var(--color-primario);
+            color: var(--color-texto);
+            transform: translateY(-1px);
+        }
+
+        /* Lista de Capturas */
+        .historial-lista {
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+            overflow-y: auto;
+            flex-grow: 1;
+            padding-right: 6px;
+            margin-bottom: 10px;
+        }
+
+        /* Scrollbar elegante */
+        .historial-lista::-webkit-scrollbar {
+            width: 5px;
+        }
+        .historial-lista::-webkit-scrollbar-track {
+            background: transparent;
+        }
+        .historial-lista::-webkit-scrollbar-thumb {
+            background: var(--color-tarjeta-borde);
+            border-radius: 4px;
+        }
+
+        /* Fila de la lista */
+        .historial-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            background-color: var(--color-bg);
+            border: 1px solid var(--color-tarjeta-borde);
+            border-radius: 8px;
+            padding: 10px 14px;
+            font-size: 12.5px;
+            transition: border-color 0.2s, background-color 0.2s;
+            animation: slideIn 0.2s ease-out;
+        }
+
+        .historial-item:hover {
+            border-color: rgba(58, 106, 201, 0.4);
+            background-color: rgba(18, 24, 38, 0.6);
+        }
+
+        .item-info {
+            display: flex;
+            flex-direction: column;
+            gap: 3px;
+            max-width: 400px;
+        }
+
+        .item-nombre {
+            font-weight: 600;
+            color: var(--color-texto);
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+
+        .item-meta {
+            font-size: 11px;
+            color: var(--color-texto-secundario);
+        }
+
+        .item-status {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            font-size: 11.5px;
+            font-weight: 600;
+        }
+
+        .item-status.sincronizado {
+            color: var(--color-exito);
+        }
+
+        .item-status.pendiente {
+            color: var(--color-peligro);
+        }
+
+        .item-status img {
+            width: 15px;
+            height: 15px;
+        }
+
+        .historial-vacio {
+            text-align: center;
+            color: var(--color-texto-secundario);
+            font-size: 13px;
+            padding: 40px 0;
+            font-style: italic;
+        }
+
+        /* Pie de ventana */
+        .historial-pie {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            font-size: 11px;
+            color: var(--color-texto-secundario);
+            border-top: 1px solid var(--color-tarjeta-borde);
+            padding-top: 10px;
+        }
+
+        .estatus-red-local {
+            display: flex;
+            align-items: center;
+            gap: 4px;
+            font-weight: 600;
+        }
+
+        @keyframes slideIn {
+            from {
+                opacity: 0;
+                transform: translateY(6px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+    </style>
+</head>
+<body>
+
+    <div class="contenedor-historial">
+        <!-- Cabecera -->
+        <div class="historial-cabecera">
+            <div class="historial-titulo-seccion">
+                <h2>Historial de Capturas</h2>
+                <span id="lblPendientesAlerta" class="badge-pendientes" style="display: none;">0 pendientes</span>
+            </div>
+            <button id="btnRegresar" class="btn-regresar">
+                <img src="assets/logout.svg" style="width: 14px; height: 14px; transform: scaleX(-1);" alt="Regresar">
+                Regresar a Captura
+            </button>
+        </div>
+
+        <!-- Lista de capturas -->
+        <div id="listaHistorial" class="historial-lista">
+            <div class="historial-vacio">
+                Cargando historial de capturas...
+            </div>
+        </div>
+
+        <!-- Pie de Página -->
+        <div class="historial-pie">
+            <span id="lblTotalRegistros">Total registros en disco: 0</span>
+            <div id="lblRed" class="estatus-red-local" style="color: var(--color-exito);">
+                <img src="assets/wifi.svg" style="width: 14px; height: 14px;" alt="Red">
+                <span>Online</span>
+            </div>
+        </div>
+    </div>
+
+    <!-- Script de lógica -->
+    <script src="historial.js"></script>
+</body>
+</html>

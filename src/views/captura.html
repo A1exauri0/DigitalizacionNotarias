@@ -192,6 +192,25 @@
                 opacity: 0.6;
             }
         }
+
+        /* Botón de historial */
+        .btn-historial {
+            background-color: var(--color-primario-brillo);
+            border: 1px solid rgba(58, 106, 201, 0.3);
+            color: var(--color-primario);
+            border-radius: 6px;
+            padding: 3px 6px;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: all 0.2s;
+        }
+
+        .btn-historial:hover {
+            background-color: rgba(58, 106, 201, 0.3);
+            transform: scale(1.05);
+        }
     </style>
 </head>
 <body>
@@ -229,7 +248,12 @@
                     <span>Online</span>
                 </span>
             </div>
-            <div id="lblContador" class="contador-sesion">Capturados: 0</div>
+            <div style="display: flex; align-items: center; gap: 8px;">
+                <div id="lblContador" class="contador-sesion">Capturados: 0</div>
+                <button id="btnToggleHistorial" class="btn-historial" title="Ver Historial de Capturas">
+                    <img src="assets/history.svg" style="width: 15px; height: 15px; vertical-align: middle;" alt="Historial">
+                </button>
+            </div>
         </div>
     </div>
 

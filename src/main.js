@@ -21,6 +21,7 @@ const RUTA_CONFIG = path.join(
 
 let ventanaLogin = null;
 let ventanaWidget = null;
+let ventanaHistorial = null;
 let intervaloReintentos = null;
 
 // Estructura de configuración por defecto
@@ -163,6 +164,9 @@ app.whenReady().then(async () => {
   // 1. Cargar configuración
   const config = await obtenerConfiguracion();
   global.configuracionPC = config;
+
+  // Inicializar la persistencia del historial de capturas
+  watcher.inicializarHistorial(path.dirname(RUTA_CONFIG));
 
   // 2. Levantar pantalla de Login
   crearVentanaLogin();
@@ -307,6 +311,10 @@ ipcMain.on("cerrar-sesion", () => {
   watcher.detenerWatcher();
   global.usuarioSesion = null;
 
+  if (ventanaHistorial) {
+    ventanaHistorial.close();
+    ventanaHistorial = null;
+  }
   if (ventanaWidget) {
     ventanaWidget.close();
     ventanaWidget = null;
@@ -332,4 +340,54 @@ ipcMain.on("detener-monitoreo", () => {
   if (ventanaWidget) {
     ventanaWidget.webContents.send("estado-watcher-cambiado", "Inactivo");
   }
+});
+
+// Crear la ventana independiente de historial
+function crearVentanaHistorial() {
+  if (ventanaHistorial) return;
+
+  ventanaHistorial = new BrowserWindow({
+    width: 550,
+    height: 400,
+    resizable: false,
+    title: "Historial de Capturas",
+    webPreferences: {
+      preload: path.join(__dirname, "preload.js"),
+      contextIsolation: true,
+      nodeIntegration: false,
+    },
+    autoHideMenuBar: true,
+  });
+
+  ventanaHistorial.loadFile(path.join(__dirname, "views", "historial.html"));
+
+  // Ocultar temporalmente el widget flotante
+  if (ventanaWidget) {
+    ventanaWidget.hide();
+  }
+
+  ventanaHistorial.on("closed", () => {
+    ventanaHistorial = null;
+    // Volver a mostrar el widget al cerrar el historial
+    if (ventanaWidget && !ventanaWidget.isDestroyed()) {
+      ventanaWidget.show();
+    }
+  });
+}
+
+// IPC Listener: Navegación de historial
+ipcMain.on("abrir-historial", () => {
+  crearVentanaHistorial();
+});
+
+ipcMain.on("regresar-a-captura", () => {
+  if (ventanaHistorial) {
+    ventanaHistorial.close();
+    ventanaHistorial = null;
+  }
+});
+
+// Obtener historial de capturas local
+ipcMain.handle("obtener-historial-sesion", async () => {
+  return await watcher.obtenerHistorialSesion();
 });

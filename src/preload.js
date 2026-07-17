@@ -19,6 +19,11 @@ contextBridge.exposeInMainWorld("apiElectron", {
   iniciarMonitoreo: () => ipcRenderer.send("iniciar-monitoreo"),
   detenerMonitoreo: () => ipcRenderer.send("detener-monitoreo"),
 
+  // Navegación de historial y consultas
+  abrirHistorial: () => ipcRenderer.send("abrir-historial"),
+  regresarACaptura: () => ipcRenderer.send("regresar-a-captura"),
+  obtenerHistorialSesion: () => ipcRenderer.invoke("obtener-historial-sesion"),
+
   // Escuchadores de eventos asíncronos para el Widget
   alDetectarRegistro: (callback) => {
     ipcRenderer.on("registro-detectado", (e, reg) => callback(reg));
