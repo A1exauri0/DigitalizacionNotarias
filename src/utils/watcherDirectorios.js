@@ -177,7 +177,7 @@ async function esperarArchivoListo(ruta, timeoutSegundos = 30) {
   return false;
 }
 
-// Parsea la ruta física para extraer la Notaría y el Volumen de forma robusta
+// Parsea la ruta física para extraer la Notaría, Nómina o Libro y el Volumen de forma robusta y dinámica
 function extraerNotariaYVolumen(rutaCompleta) {
   const rutaNormalizada = rutaCompleta.replace(/\\/g, "/");
   const partes = rutaNormalizada.split("/");
@@ -186,7 +186,9 @@ function extraerNotariaYVolumen(rutaCompleta) {
 
   const indexNotaria = partes.findIndex((p) => {
     const u = p.toUpperCase().trim();
-    return u.startsWith("NOTARIA") && u !== "NOTARIAS";
+    return (u.startsWith("NOTARIA") && u !== "NOTARIAS") ||
+           (u.startsWith("NOMINA") && u !== "NOMINAS") ||
+           (u.startsWith("LIBRO") && u !== "LIBROS");
   });
 
   if (indexNotaria !== -1) {
